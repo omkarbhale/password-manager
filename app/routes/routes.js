@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const { notImplemented } = require("../controllers/controller");
+const { signUp, login, notImplemented } = require("../controllers/controller");
 
-router.post("/signup", notImplemented);
-router.get("/login", notImplemented);
+router.post("/signup", signUp);
+router.get("/login", login);
 router.post("/updateAccount", notImplemented);
 
 router.get("/websites", notImplemented);

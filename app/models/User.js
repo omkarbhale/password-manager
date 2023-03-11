@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const UserSchema = mongoose.Schema({
 	username: { type: String, required: true },
-	password: { type: String, required: true },
+	password: { type: String, required: true, select: false },
 });
 
 UserSchema.pre("save", async function (next) {
@@ -24,7 +24,9 @@ UserSchema.methods.login = async function (password) {
 		throw new Error("Incorrect password");
 	}
 
-	const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET);
+	const token = jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+		expiresIn: 180,
+	});
 	return token;
 };
 
