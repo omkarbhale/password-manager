@@ -12,6 +12,11 @@ const userAuth = async (req, res, next) => {
 			message: "Not authorized",
 		});
 	}
+	if (req.user.deactivated) {
+		return res.status(StatusCodes.UNAUTHORIZED).json({
+			message: "Cannot perform operation: Account deactivated",
+		});
+	}
 	next();
 };
 

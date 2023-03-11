@@ -23,7 +23,16 @@ const signUp = async (req, res, next) => {
 
 const login = async (req, res, next) => {
 	const { username, password } = req.body;
-	const user = await User.findOne({ username }).select("password");
+	const user = await User.findOne({ username }).select(
+		"password deactivated"
+	);
+
+	if (user == null) {
+		return res.status(StatusCodes.NOT_FOUND).json({
+			message: "No user found with that username",
+		});
+	}
+
 	try {
 		const token = await user.login(password);
 		return res.status(StatusCodes.OK).json({
@@ -35,6 +44,37 @@ const login = async (req, res, next) => {
 			.status(StatusCodes.UNAUTHORIZED)
 			.json({ message: err.message });
 	}
+};
+
+const patchAccount = async (req, res, next) => {
+	const { username, password } = req.body;
+	const updatedFields = [];
+
+	if (username != null) {
+		const existingUser = await User.findOne({ username });
+		if (
+			existingUser != null &&
+			existingUser.username != req.user.username
+		) {
+			return res.status(StatusCodes.CONFLICT).json({
+				message: "User with this username already exists",
+			});
+		}
+
+		updatedFields.push("username");
+		req.user.username = username;
+	}
+
+	if (password != null) {
+		updatedFields.push("password");
+		req.user.password = password;
+	}
+
+	await req.user.save();
+	return res.status(StatusCodes.OK).json({
+		message: "Account updated",
+		updatedFields,
+	});
 };
 
 const getWebsites = async (req, res, next) => {
@@ -110,13 +150,23 @@ const deletePassword = async (req, res, next) => {
 	});
 };
 
+const deleteAccount = async (req, res, next) => {
+	req.user.deactivated = true;
+	await req.user.save();
+	return res.status(StatusCodes.OK).json({
+		message: "Account deactivated",
+	});
+};
+
 module.exports = {
 	signUp,
 	login,
+	patchAccount,
 	getWebsites,
 	getAllPasswords,
 	addPassword,
 	deletePassword,
+	deleteAccount,
 	notImplemented: async (req, res, next) => {
 		return res.status(StatusCodes.NOT_IMPLEMENTED).json({
 			message: "Not implemented",

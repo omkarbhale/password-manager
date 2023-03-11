@@ -4,18 +4,20 @@ const router = express.Router();
 const {
 	signUp,
 	login,
+	patchAccount,
 	getWebsites,
 	getAllPasswords,
 	addPassword,
 	deletePassword,
+	deleteAccount,
 	notImplemented,
 } = require("../controllers/controller");
 const auth = require("../middlewares/auth");
 
 router.post("/signup", signUp);
 router.get("/login", login);
-router.patch("/account", notImplemented);
-router.delete("/account", notImplemented);
+router.patch("/account", auth, patchAccount);
+router.delete("/account", auth, deleteAccount);
 
 router.get("/websites", auth, getWebsites);
 router.get("/allpasswords", auth, getAllPasswords);

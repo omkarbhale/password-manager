@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const UserSchema = mongoose.Schema({
 	username: { type: String, unique: true, required: true },
 	password: { type: String, required: true, select: false },
+	deactivated: { type: Boolean, default: false },
 });
 
 UserSchema.pre("save", async function (next) {
@@ -19,6 +20,11 @@ UserSchema.pre("save", async function (next) {
 });
 
 UserSchema.methods.login = async function (password) {
+	console.log(this.deactivated);
+	if (this.deactivated) {
+		throw new Error("Cannot login: Deactivated Account");
+	}
+
 	const correct = await this.comparePassword(password);
 	if (!correct) {
 		throw new Error("Incorrect password");
