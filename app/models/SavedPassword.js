@@ -3,7 +3,7 @@ const Cryptr = require("cryptr");
 const cryptr = new Cryptr(process.env.CRYPTR_SECRET);
 
 const SavedPasswordSchema = mongoose.Schema({
-	user: { type: mongoose.Types.ObjectId, ref: "User" },
+	user: { type: mongoose.Types.ObjectId, ref: "User", required: true },
 	website: { type: String, required: true },
 	loginUsername: { type: String, required: true },
 	password: { type: String, required: true },
