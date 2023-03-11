@@ -7,6 +7,7 @@ const {
 	getWebsites,
 	getAllPasswords,
 	addPassword,
+	deletePassword,
 	notImplemented,
 } = require("../controllers/controller");
 const auth = require("../middlewares/auth");
@@ -19,6 +20,6 @@ router.delete("/account", notImplemented);
 router.get("/websites", auth, getWebsites);
 router.get("/allpasswords", auth, getAllPasswords);
 router.post("/password", auth, addPassword);
-router.delete("/password", notImplemented);
+router.delete("/password", auth, deletePassword);
 
 module.exports = router;

@@ -64,6 +64,17 @@ const getAllPasswords = async (req, res, next) => {
 const addPassword = async (req, res, next) => {
 	const { website, loginUsername, password } = req.body;
 
+	const existingPassword = await SavedPassword.findOne({
+		user: req.user._id,
+		website,
+		loginUsername,
+	});
+	if (existingPassword != null) {
+		return res.status(StatusCodes.CONFLICT).json({
+			message: "Password for that website & username already exists",
+		});
+	}
+
 	const savedPassword = new SavedPassword({
 		user: req.user._id,
 		website,
@@ -79,12 +90,33 @@ const addPassword = async (req, res, next) => {
 	});
 };
 
+const deletePassword = async (req, res, next) => {
+	const { website, loginUsername } = req.body;
+
+	const savedPassword = await SavedPassword.findOne({
+		user: req.user._id,
+		website,
+		loginUsername,
+	});
+	if (savedPassword == null) {
+		return res.status(StatusCodes.NOT_FOUND).json({
+			message: "Password for that website and username does not exist",
+		});
+	}
+
+	await SavedPassword.findByIdAndDelete(savedPassword._id);
+	return res.status(StatusCodes.OK).json({
+		message: "Password deleted successfully",
+	});
+};
+
 module.exports = {
 	signUp,
 	login,
 	getWebsites,
 	getAllPasswords,
 	addPassword,
+	deletePassword,
 	notImplemented: async (req, res, next) => {
 		return res.status(StatusCodes.NOT_IMPLEMENTED).json({
 			message: "Not implemented",
