@@ -16,7 +16,7 @@ SavedPasswordSchema.pre("save", async function (next) {
 	return next();
 });
 
-SavedPasswordSchema.methods.decryptPassword = function () {
+SavedPasswordSchema.methods.getPassword = function () {
 	return cryptr.decrypt(this.password);
 };
 

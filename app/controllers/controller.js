@@ -37,9 +37,29 @@ const login = async (req, res, next) => {
 	}
 };
 
+const addPassword = async (req, res, next) => {
+	const { website, loginUsername, password } = req.body;
+
+	const savedPassword = new SavedPassword({
+		website,
+		loginUsername,
+		password,
+	});
+	await savedPassword.save();
+
+	return res
+		.status(StatusCodes.OK)
+		.json({
+			website,
+			loginUsername,
+			message: "Password added successfully",
+		});
+};
+
 module.exports = {
 	signUp,
 	login,
+	addPassword,
 	notImplemented: async (req, res, next) => {
 		return res.status(StatusCodes.NOT_IMPLEMENTED).json({
 			message: "Not implemented",
