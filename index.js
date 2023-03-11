@@ -4,7 +4,8 @@ require("express-async-errors");
 const app = express();
 const connectDB = require("./app/db/connect");
 
-// Setup next js or any frontend middleware
+// static files
+app.use(express.static("public"));
 
 // Test route
 app.get("/api", (req, res, next) => {
