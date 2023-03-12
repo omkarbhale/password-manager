@@ -4,9 +4,101 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Password Manager</title>
+    <style>
+        @font-face {
+            font-family: "Tilt Neon";
+            src: url(TiltNeon-Regular-VariableFont_XROT\,YROT.ttf);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            /* padding: .2rem 2rem; */
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Tilt Neon", monospace;
+            background-color: #151515;
+            color: white;
+        }
+
+        .w-100 {
+            width: 100%;
+        }
+        .h-100 {
+            min-height: 100vh;
+        }
+        .mw-400 {
+            min-width: 400px;
+        }
+        .mw-400 * {
+            margin: .2rem;
+            padding: .2rem 1rem;
+        }
+        .flex {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .column {
+            flex-direction: column;
+        }
+
+        .loading {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #ff3562;
+            border-top-color: #82ff9e;
+            /* border-radius: 50%; */
+            animation: spin 3s infinite linear;
+            position: absolute;
+            top: 150px;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-    <h1>Index.html</h1>
+    <div class="w-100 h-100 flex column">
+        <div class="loading">
+            <!-- Spinning logo -->
+        </div>
+        <div class="mw-400 flex column">
+            <h2>Log in</h2>
+            <input type="text" name="username" id="username" placeholder="Username">
+            <input type="password" name="password" id="password" placeholder="Password">
+            <input type="submit" value="Log in">
+        </div>
+        <div>
+            <div class="flex">
+                <span>Sign up instead: </span><input type="checkbox" name="issignup" id="issignup">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let issignup = false;
+        document.getElementById("issignup").addEventListener('change', (e) => {
+            issignup = e.target.checked;
+            if (issignup) {
+                document.querySelector('h2').textContent = 'Sign up';
+                document.querySelector("input[type='submit']").value = 'Sign up';
+                document.querySelector("input[type='password']").placeholder = 'New password';
+            } else {
+                document.querySelector('h2').textContent = 'Log in';
+                document.querySelector("input[type='submit']").value = 'Log in';
+                document.querySelector("input[type='password']").placeholder = 'Password';
+            }
+        })
+    </script>
 </body>
 </html>
