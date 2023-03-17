@@ -20,7 +20,6 @@ UserSchema.pre("save", async function (next) {
 });
 
 UserSchema.methods.login = async function (password) {
-	console.log(this.deactivated);
 	if (this.deactivated) {
 		throw new Error("Cannot login: Deactivated Account");
 	}

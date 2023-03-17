@@ -15,7 +15,7 @@ const {
 const auth = require("../middlewares/auth");
 
 router.post("/signup", signUp);
-router.get("/login", login);
+router.post("/login", login);
 router.patch("/account", auth, patchAccount);
 router.delete("/account", auth, deleteAccount);
 

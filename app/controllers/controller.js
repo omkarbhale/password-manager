@@ -36,7 +36,6 @@ const login = async (req, res, next) => {
 	try {
 		const token = await user.login(password);
 		return res.status(StatusCodes.OK).json({
-			userid: user._id,
 			token,
 		});
 	} catch (err) {
@@ -138,6 +137,7 @@ const deletePassword = async (req, res, next) => {
 		website,
 		loginUsername,
 	});
+	console.log(website, loginUsername);
 	if (savedPassword == null) {
 		return res.status(StatusCodes.NOT_FOUND).json({
 			message: "Password for that website and username does not exist",
