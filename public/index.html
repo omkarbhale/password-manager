@@ -34,6 +34,9 @@
 			.mw-400 {
 				min-width: 400px;
 			}
+			.mxw-400 {
+				max-width: 400px;
+			}
 			.mw-400 * {
 				margin: 0.2rem;
 				padding: 0.2rem 1rem;
@@ -73,6 +76,38 @@
 					transform: rotate(360deg);
 				}
 			}
+
+			input[type="text"],
+			input[type="password"],
+			button {
+				border-radius: 0.4rem;
+				border: none;
+				padding: 0.2rem 1rem;
+				margin-bottom: 0.2rem;
+				width: 400px;
+				font-family: "Tilt Neon";
+				font-size: 1.5rem;
+			}
+			input[type="text"]:focus,
+			input[type="password"]:focus,
+			button {
+				outline: none;
+			}
+			input[type="text"]::placeholder,
+			input[type="password"]::placeholder {
+				text-align: center;
+			}
+
+			button {
+				background-color: #82ff9e;
+				cursor: pointer;
+				margin-top: 0.2rem;
+				font-weight: bold;
+				transition: all 0.3s ease-in-out;
+			}
+			button:hover {
+				background-color: #ff3562;
+			}
 		</style>
 		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	</head>
@@ -86,18 +121,22 @@
 					name="username"
 					id="username"
 					placeholder="Username"
+					readonly
+					onfocus="this.removeAttribute('readonly');"
 				/>
 				<input
 					type="password"
 					name="password"
 					id="password"
 					placeholder="Password"
+					readonly
+					onfocus="this.removeAttribute('readonly');"
 				/>
-				<input type="submit" id="submitbutton" value="Log in" />
+				<button type="submit" id="submitbutton">Log in</button>
 			</div>
 			<div>
-				<div class="flex">
-					<span style="margin-right: 0.5rem">Sign up instead: </span>
+				<div class="flex mw-400" style="justify-content: center">
+					<span style="font-size: 1.4rem">Sign up instead: </span>
 					<input type="checkbox" name="issignup" id="issignup" />
 				</div>
 			</div>
@@ -127,26 +166,33 @@
 					}
 				});
 
+			function handleSubmit() {
+				const username = document.getElementById("username").value;
+				const password = document.getElementById("password").value;
+
+				if (username == "" || password == "") {
+					message("Username and password should be provided");
+					return;
+				}
+
+				if (issignup == false) {
+					// perform login
+					login(username, password);
+				} else {
+					// perform sign up
+					signup(username, password);
+				}
+			}
+
 			document
 				.getElementById("submitbutton")
-				.addEventListener("click", (e) => {
-					const username = document.getElementById("username").value;
-					const password = document.getElementById("password").value;
+				.addEventListener("click", handleSubmit);
 
-					if (username == "" || password == "") {
-						message("Username and password should be provided");
-						return;
-					}
-					console.log(username, password);
-
-					if (issignup == false) {
-						// perform login
-						login(username, password);
-					} else {
-						// perform sign up
-						signup(username, password);
-					}
-				});
+			document.addEventListener("keypress", (e) => {
+				if (e.keyCode == 13) {
+					handleSubmit();
+				}
+			});
 
 			function message(msg) {
 				const msgelem = document.getElementById("msg");
@@ -163,7 +209,6 @@
 						username: username,
 						password: password,
 					});
-					console.log(data);
 					saveToken(data.token);
 					window.location = "/dashboard.html";
 				} catch (e) {

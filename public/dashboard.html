@@ -115,30 +115,74 @@
 				background-color: rgba(255, 255, 255, 0.058);
 			}
 
+			/* 
+			style="
+					position: absolute;
+					top: 1rem;
+					background: rgb(200, 39, 39);
+					color: white;
+					padding: 0.2rem 1rem;
+					border-radius: 0.4rem;
+					"
+					*/
+			.message {
+				background-color: #82ff9e;
+				color: black;
+				text-align: center;
+				min-width: 300px;
+				font-size: 1.2rem;
+				padding: 0.2rem 1rem;
+				border-radius: 0.2rem;
+				margin-top: -1.5rem;
+				margin-bottom: 0.5rem;
+			}
+
 			.logout {
 				top: 1.5rem;
 				right: 2rem;
 				position: fixed;
 				background-color: #ff3562;
+				font-weight: bold;
 				border-radius: 0.3rem;
 				padding: 0.4rem 1.5rem;
 				cursor: pointer;
+				transition: all 200ms ease-in-out;
+			}
+			.logout:hover {
+				background-color: #82ff9e;
+				color: black;
 			}
 			.hide {
 				display: none;
 			}
 
-			input[type="text"] {
+			input[type="text"],
+			button {
+				border-radius: 0.4rem;
+				border: none;
 				padding: 0.2rem 1rem;
+				margin-bottom: 0.2rem;
 				width: 400px;
 				font-family: "Tilt Neon";
 				font-size: 1.5rem;
 			}
-			input[type="text"]:focus {
+			input[type="text"]:focus,
+			button {
 				outline: none;
 			}
 			input[type="text"]::placeholder {
 				text-align: center;
+			}
+
+			button {
+				background-color: #82ff9e;
+				cursor: pointer;
+				margin-top: 0.2rem;
+				font-weight: bold;
+				transition: all 0.3s ease-in-out;
+			}
+			button:hover {
+				background-color: #ff3562;
 			}
 		</style>
 		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
@@ -154,20 +198,31 @@
 					placeholder="Filter by website"
 				/>
 			</div>
-			<div
-				style="
-					position: absolute;
-					top: 1rem;
-					background: rgb(200, 39, 39);
-					color: white;
-					padding: 0.2rem 1rem;
-					border-radius: 0.4rem;
-				"
-				id="message"
-				class="message hide"
-			>
-				Message
+			<div>
+				<h2>Add password</h2>
+				<div class="flex column">
+					<input
+						type="text"
+						name="newwebsite"
+						id="newwebsite"
+						placeholder="New website"
+					/>
+					<input
+						type="text"
+						name="newusername"
+						id="newusername"
+						placeholder="Username"
+					/>
+					<input
+						type="text"
+						name="newpassword"
+						id="newpassword"
+						placeholder="Password (None for random)"
+					/>
+					<button id="newpassbtn">Submit</button>
+				</div>
 			</div>
+			<div id="message" class="message hide">Message</div>
 			<div>
 				<div
 					id="passwords-container"
@@ -187,15 +242,11 @@
 		<div class="logout">Log out</div>
 
 		<script>
-			///////////////////////////////////////////////
-			// On website load, check token
-			///////////////////////////////////////////////
-			const token = window.localStorage.getItem("pm-token");
-			if (token == null) {
-				window.location = "/login.html";
-			}
-
 			let passwords = [];
+			let renderedPasswords = [];
+			let token;
+
+			// Fetch from API and store in two arrays
 			async function getPasswords() {
 				try {
 					const response = await axios.get("/api/allpasswords", {
@@ -207,6 +258,7 @@
 						const textB = b.website.toUpperCase();
 						return textA < textB ? -1 : textA > textB ? 1 : 0;
 					});
+					renderedPasswords = [...passwords];
 				} catch (e) {
 					if (e?.response?.status == 401) {
 						await message("Unauthorized, redirecting!");
@@ -214,25 +266,29 @@
 						return false;
 					} else if (e?.response?.status == 404) {
 						passwords = [];
+					} else {
+						message("Something went wrong! Trust me", 2000);
 					}
 				}
 				return true;
 			}
 
+			// Render renderedPasswords in "#passwords-container"
 			function loadPasswords() {
 				const container = document.getElementById(
 					"passwords-container"
 				);
 				container.innerHTML = "";
-				if (passwords.length == 0) {
+				if (renderedPasswords.length == 0) {
 					container.innerHTML = "No passwords to show";
 					return;
 				}
-				for (let row of passwords) {
+				for (let row of renderedPasswords) {
 					container.append(makePasswordElement(row));
 				}
 			}
 
+			// Call API to delete password
 			async function deletePassword(website, loginUsername) {
 				try {
 					document
@@ -256,6 +312,8 @@
 						await message("Unauthorized: Redirectinge");
 						alert("Unauthorized, redirecting!");
 						window.location = "/";
+					} else {
+						throw e;
 					}
 				}
 			}
@@ -326,7 +384,7 @@
 				return rowcontainer;
 			}
 
-			function message(msg) {
+			function message(msg, time = 550) {
 				return new Promise((res, rej) => {
 					const elem = document.getElementById("message");
 					elem.innerHTML = msg;
@@ -334,18 +392,83 @@
 					setTimeout(() => {
 						elem.classList.add("hide");
 						res();
-					}, 550);
+					}, time);
 				});
 			}
 
 			function run() {
+				// On website load, check token
+				token = window.localStorage.getItem("pm-token");
+				if (token == null) {
+					window.location = "/login.html";
+				}
+
 				document
 					.querySelector(".logout")
 					.addEventListener("click", async () => {
-						await message("Logging out!");
+						await message("Logging out!", 150);
 						window.localStorage.removeItem("pm-token");
 						window.location = "/";
 					});
+
+				document
+					.getElementById("newpassbtn")
+					.addEventListener("click", async (e) => {
+						const website = document
+							.getElementById("newwebsite")
+							.value.trim()
+							.toLowerCase();
+						const username = document
+							.getElementById("newusername")
+							.value.trim();
+						let password =
+							document.getElementById("newpassword").value;
+
+						if (website == "" || username == "") {
+							message(
+								"Website and username cannot be empty",
+								1200
+							);
+							return;
+						}
+
+						try {
+							const response = await axios.post(
+								"/api/password",
+								{
+									website,
+									loginUsername: username,
+									password,
+								},
+								{
+									headers: { "x-access-token": token },
+								}
+							);
+							refreshPasswords();
+						} catch (e) {
+							if (e?.response?.status == 401) {
+								await message("Unauthorized, redirecting!");
+								// window.location = "/";
+								return false;
+							} else {
+								message(e?.response?.message);
+							}
+						}
+					});
+
+				document
+					.getElementById("websitefilter")
+					.addEventListener("input", (e) => {
+						const value = e.target.value.toLowerCase();
+						renderedPasswords = passwords.filter((row) => {
+							return (
+								row.website.toLowerCase().includes(value) ||
+								row.loginUsername.toLowerCase().includes(value)
+							);
+						});
+						loadPasswords();
+					});
+
 				refreshPasswords();
 			}
 			run();

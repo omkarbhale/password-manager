@@ -1,5 +1,6 @@
 const { User, SavedPassword } = require("../models");
 const { StatusCodes } = require("http-status-codes");
+const generatePassword = require("../utils/password");
 
 const signUp = async (req, res, next) => {
 	const { username, password } = req.body;
@@ -101,7 +102,8 @@ const getAllPasswords = async (req, res, next) => {
 };
 
 const addPassword = async (req, res, next) => {
-	const { website, loginUsername, password } = req.body;
+	const { website, loginUsername } = req.body;
+	let { password } = req.body;
 
 	const existingPassword = await SavedPassword.findOne({
 		user: req.user._id,
@@ -112,6 +114,10 @@ const addPassword = async (req, res, next) => {
 		return res.status(StatusCodes.CONFLICT).json({
 			message: "Password for that website & username already exists",
 		});
+	}
+
+	if (password == "") {
+		password = generatePassword();
 	}
 
 	const savedPassword = new SavedPassword({
@@ -137,7 +143,6 @@ const deletePassword = async (req, res, next) => {
 		website,
 		loginUsername,
 	});
-	console.log(website, loginUsername);
 	if (savedPassword == null) {
 		return res.status(StatusCodes.NOT_FOUND).json({
 			message: "Password for that website and username does not exist",
