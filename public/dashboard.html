@@ -1,59 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Manager</title>
-    <style>
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Password Manager</title>
+		<style>
+			@font-face {
+				font-family: "Tilt Neon";
+				src: url("TiltNeon-Regular-VariableFont_XROT,YROT.ttf");
+			}
 
-        h1 {
-            display: none;
-        }
+			*,
+			*::before,
+			*::after {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #151515;
-        }
+			body {
+				font-family: "Tilt Neon", monospace;
+				background-color: #151515;
+				color: white;
+				font-size: 1.5rem;
+			}
 
-        .loading {
-            width: 120px;
-            height: 120px;
-            border: 12px solid #ff3562;
-            border-top-color: #82ff9e;
-            /* border-radius: 50%; */
-            animation: spin 3s infinite linear;
-        }
+			.w-100 {
+				width: 100%;
+			}
+			.h-100 {
+				min-height: 100vh;
+			}
+			.c-m-btm-2 > * {
+				margin-bottom: 2rem;
+			}
 
-        @keyframes spin {
-            from {
-                transform: rotate(0);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        const token = window.localStorage.getItem('pm-x-access-token');
-        if (token != null) {
-            window.location = '/dashboard.html'
-        } else {
-            window.location = '/login.html'
-        }
-    </script>
-</head>
-<body>
-    <h1>Loading</h1>
-    <div class="loading"></div>
-</body>
+			.flex {
+				display: flex;
+				align-items: center;
+			}
+			.column {
+				flex-direction: column;
+			}
+
+			.inline-btn {
+				cursor: pointer;
+				font-size: 0.9rem;
+				width: 80px;
+				text-align: center;
+				border: 2px solid #e5e5e5;
+				border-radius: 0.4rem;
+				padding: 0.2rem 0.8rem;
+				margin: 0 0.3rem;
+				user-select: none;
+			}
+			/* .inline-btn:hover {
+				background-color: black;
+				color: white;
+			} */
+			.red-bg {
+				background-color: red;
+			}
+			.green-bg {
+				background-color: #82ff9e;
+				color: black;
+			}
+			.hover {
+				padding: 0.5rem 2rem;
+				cursor: default;
+			}
+			.hover:hover {
+				background-color: rgba(200, 200, 200, 0.05);
+			}
+
+			.mw-600 {
+				min-width: 900px;
+				font-size: 1.4rem;
+				justify-content: space-between;
+			}
+
+			td {
+				font-size: 1.1rem;
+			}
+
+			.loading {
+				width: 80px;
+				height: 80px;
+				margin: 2rem auto;
+				border: 8px solid #ff3562;
+				border-top-color: #82ff9e;
+				/* border-radius: 50%; */
+				animation: spin 3s infinite linear;
+			}
+
+			@keyframes spin {
+				from {
+					transform: rotate(0);
+				}
+				to {
+					transform: rotate(360deg);
+				}
+			}
+			.pass-container {
+				border-radius: 0.5rem;
+				overflow: hidden;
+			}
+
+			.border {
+				border: 1px solid rgba(255, 0, 0, 0.1);
+			}
+
+			.card {
+				background-color: rgba(255, 255, 255, 0.058);
+			}
+
+			.logout {
+				top: 1.5rem;
+				right: 2rem;
+				position: fixed;
+				background-color: #ff3562;
+				border-radius: 0.3rem;
+				padding: 0.4rem 1.5rem;
+				cursor: pointer;
+			}
+			.hide {
+				display: none;
+			}
+
+			input[type="text"] {
+				padding: 0.2rem 1rem;
+				width: 400px;
+				font-family: "Tilt Neon";
+				font-size: 1.5rem;
+			}
+			input[type="text"]:focus {
+				outline: none;
+			}
+			input[type="text"]::placeholder {
+				text-align: center;
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div class="w-100 h-100 flex column c-m-btm-2">
+			<div class="loading"></div>
+			<div>
+				<input
+					type="text"
+					name="websitefilter"
+					id="websitefilter"
+					placeholder="Filter by website"
+				/>
+			</div>
+			<div
+				style="
+					position: absolute;
+					top: 1rem;
+					background: rgb(200, 39, 39);
+					color: white;
+					padding: 0.2rem 1rem;
+					border-radius: 0.4rem;
+				"
+				id="message"
+				class="message hide"
+			>
+				Message
+			</div>
+			<div>
+				<div
+					id="passwords-container"
+					class="pass-container flex column border card"
+				>
+					<!-- <div class="flex mw-600 hover">
+						<div>mail.google.com</div>
+						<div>address@gmail.com</div>
+						<div class="flex">
+							<div class="inline-btn">Copy</div>
+							<div class="inline-btn">Delete</div>
+						</div>
+					</div> -->
+				</div>
+			</div>
+		</div>
+		<div class="logout">Log out</div>
+
+		<script>
+			///////////////////////////////////////////////
+			// On website load, check token
+			///////////////////////////////////////////////
+			const token = window.localStorage.getItem("pm-token");
+			if (token == null) {
+				window.location = "/login.html";
+			}
+
+			let passwords = [];
+			async function getPasswords() {
+				try {
+					const response = await axios.get("/api/allpasswords", {
+						headers: { "x-access-token": token },
+					});
+					passwords = response.data;
+					passwords.sort((a, b) => {
+						const textA = a.website.toUpperCase();
+						const textB = b.website.toUpperCase();
+						return textA < textB ? -1 : textA > textB ? 1 : 0;
+					});
+				} catch (e) {
+					if (e?.response?.status == 401) {
+						await message("Unauthorized, redirecting!");
+						window.location = "/";
+						return false;
+					} else if (e?.response?.status == 404) {
+						passwords = [];
+					}
+				}
+				return true;
+			}
+
+			function loadPasswords() {
+				const container = document.getElementById(
+					"passwords-container"
+				);
+				container.innerHTML = "";
+				if (passwords.length == 0) {
+					container.innerHTML = "No passwords to show";
+					return;
+				}
+				for (let row of passwords) {
+					container.append(makePasswordElement(row));
+				}
+			}
+
+			async function deletePassword(website, loginUsername) {
+				try {
+					document
+						.getElementById("passwords-container")
+						.classList.add("hide");
+					const response = await axios.delete("/api/password", {
+						data: {
+							website,
+							loginUsername,
+						},
+						headers: {
+							"x-access-token": token,
+						},
+					});
+					refreshPasswords();
+					document
+						.getElementById("passwords-container")
+						.classList.remove("hide");
+				} catch (e) {
+					if (e?.response?.status == 401) {
+						await message("Unauthorized: Redirectinge");
+						alert("Unauthorized, redirecting!");
+						window.location = "/";
+					}
+				}
+			}
+
+			async function refreshPasswords() {
+				const success = await getPasswords();
+				if (!success) return;
+
+				await loadPasswords();
+			}
+
+			function makePasswordElement(row) {
+				// `
+				// 	<div class="flex mw-600 hover">
+				// 		<div>mail.google.com</div>
+				// 		<div class="flex">
+				// 			<div class="inline-btn">Copy</div>
+				// 			<div class="inline-btn">Delete</div>
+				// 		</div>
+				// 	</div>
+				// `;
+				const rowcontainer = document.createElement("div");
+				const left = document.createElement("div");
+				const right = document.createElement("div");
+				const middle = document.createElement("div");
+				const right_left = document.createElement("div");
+				const right_right = document.createElement("div");
+
+				right_left.addEventListener("click", (e) => {
+					navigator.clipboard.writeText(row.password);
+					right_left.classList.add("green-bg");
+					right_left.innerHTML = "Copied!";
+					setTimeout(() => {
+						right_left.classList.remove("green-bg");
+						right_left.innerHTML = "Copy";
+					}, 1000);
+				});
+
+				right_right.addEventListener("click", (e) => {
+					if (!right_right.classList.contains("red-bg")) {
+						right_right.classList.add("red-bg");
+						right_right.innerHTML = "Delete?";
+						setTimeout(() => {
+							right_right.classList.remove("red-bg");
+							right_right.innerHTML = "Delete";
+						}, 1000);
+						return;
+					}
+					deletePassword(row.website, row.loginUsername);
+				});
+
+				right.append(right_left);
+				right.append(right_right);
+				rowcontainer.append(left);
+				rowcontainer.append(middle);
+				rowcontainer.append(right);
+
+				rowcontainer.classList.add("flex", "mw-600", "hover");
+				right.classList.add("flex");
+				right_left.classList.add("inline-btn");
+				right_right.classList.add("inline-btn");
+
+				left.innerHTML = row.website;
+				middle.innerHTML = row.loginUsername;
+				right_left.innerHTML = "Copy";
+				right_right.innerHTML = "Delete";
+
+				return rowcontainer;
+			}
+
+			function message(msg) {
+				return new Promise((res, rej) => {
+					const elem = document.getElementById("message");
+					elem.innerHTML = msg;
+					elem.classList.remove("hide");
+					setTimeout(() => {
+						elem.classList.add("hide");
+						res();
+					}, 550);
+				});
+			}
+
+			function run() {
+				document
+					.querySelector(".logout")
+					.addEventListener("click", async () => {
+						await message("Logging out!");
+						window.localStorage.removeItem("pm-token");
+						window.location = "/";
+					});
+				refreshPasswords();
+			}
+			run();
+		</script>
+	</body>
 </html>

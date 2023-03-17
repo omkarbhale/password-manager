@@ -1,104 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Manager</title>
-    <style>
-        @font-face {
-            font-family: "Tilt Neon";
-            src: url(TiltNeon-Regular-VariableFont_XROT\,YROT.ttf);
-        }
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Password Manager</title>
+		<style>
+			@font-face {
+				font-family: "Tilt Neon";
+				src: url("TiltNeon-Regular-VariableFont_XROT,YROT.ttf");
+			}
 
-        *, *::before, *::after {
-            margin: 0;
-            /* padding: .2rem 2rem; */
-            box-sizing: border-box;
-        }
+			*,
+			*::before,
+			*::after {
+				margin: 0;
+				/* padding: .2rem 2rem; */
+				box-sizing: border-box;
+			}
 
-        body {
-            font-family: "Tilt Neon", monospace;
-            background-color: #151515;
-            color: white;
-        }
+			body {
+				font-family: "Tilt Neon", monospace;
+				background-color: #151515;
+				color: white;
+			}
 
-        .w-100 {
-            width: 100%;
-        }
-        .h-100 {
-            min-height: 100vh;
-        }
-        .mw-400 {
-            min-width: 400px;
-        }
-        .mw-400 * {
-            margin: .2rem;
-            padding: .2rem 1rem;
-        }
-        .flex {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .column {
-            flex-direction: column;
-        }
+			.w-100 {
+				width: 100%;
+			}
+			.h-100 {
+				min-height: 100vh;
+			}
+			.mw-400 {
+				min-width: 400px;
+			}
+			.mw-400 * {
+				margin: 0.2rem;
+				padding: 0.2rem 1rem;
+			}
+			.flex {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.column {
+				flex-direction: column;
+			}
 
-        .loading {
-            width: 80px;
-            height: 80px;
-            border: 4px solid #ff3562;
-            border-top-color: #82ff9e;
-            /* border-radius: 50%; */
-            animation: spin 3s infinite linear;
-            position: absolute;
-            top: 150px;
-        }
+			.msg {
+				color: #ff3562;
+			}
+			.hide {
+				display: none;
+			}
 
-        @keyframes spin {
-            from {
-                transform: rotate(0);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
-<body>
-    <div class="w-100 h-100 flex column">
-        <div class="loading">
-            <!-- Spinning logo -->
-        </div>
-        <div class="mw-400 flex column">
-            <h2>Log in</h2>
-            <input type="text" name="username" id="username" placeholder="Username">
-            <input type="password" name="password" id="password" placeholder="Password">
-            <input type="submit" value="Log in">
-        </div>
-        <div>
-            <div class="flex">
-                <span>Sign up instead: </span><input type="checkbox" name="issignup" id="issignup">
-            </div>
-        </div>
-    </div>
+			.loading {
+				width: 80px;
+				height: 80px;
+				border: 4px solid #ff3562;
+				border-top-color: #82ff9e;
+				/* border-radius: 50%; */
+				animation: spin 3s infinite linear;
+				position: absolute;
+				top: 150px;
+			}
 
-    <script>
-        let issignup = false;
-        document.getElementById("issignup").addEventListener('change', (e) => {
-            issignup = e.target.checked;
-            if (issignup) {
-                document.querySelector('h2').textContent = 'Sign up';
-                document.querySelector("input[type='submit']").value = 'Sign up';
-                document.querySelector("input[type='password']").placeholder = 'New password';
-            } else {
-                document.querySelector('h2').textContent = 'Log in';
-                document.querySelector("input[type='submit']").value = 'Log in';
-                document.querySelector("input[type='password']").placeholder = 'Password';
-            }
-        })
-    </script>
-</body>
+			@keyframes spin {
+				from {
+					transform: rotate(0);
+				}
+				to {
+					transform: rotate(360deg);
+				}
+			}
+		</style>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div class="w-100 h-100 flex column">
+			<div class="loading"></div>
+			<div class="mw-400 flex column">
+				<h2>Log in</h2>
+				<input
+					type="text"
+					name="username"
+					id="username"
+					placeholder="Username"
+				/>
+				<input
+					type="password"
+					name="password"
+					id="password"
+					placeholder="Password"
+				/>
+				<input type="submit" id="submitbutton" value="Log in" />
+			</div>
+			<div>
+				<div class="flex">
+					<span style="margin-right: 0.5rem">Sign up instead: </span>
+					<input type="checkbox" name="issignup" id="issignup" />
+				</div>
+			</div>
+			<div class="msg hide" id="msg"></div>
+		</div>
+
+		<script>
+			let issignup = false;
+			document
+				.getElementById("issignup")
+				.addEventListener("change", (e) => {
+					issignup = e.target.checked;
+					if (issignup) {
+						document.querySelector("h2").textContent = "Sign up";
+						document.querySelector("input[type='submit']").value =
+							"Sign up";
+						document.querySelector(
+							"input[type='password']"
+						).placeholder = "New password";
+					} else {
+						document.querySelector("h2").textContent = "Log in";
+						document.querySelector("input[type='submit']").value =
+							"Log in";
+						document.querySelector(
+							"input[type='password']"
+						).placeholder = "Password";
+					}
+				});
+
+			document
+				.getElementById("submitbutton")
+				.addEventListener("click", (e) => {
+					const username = document.getElementById("username").value;
+					const password = document.getElementById("password").value;
+
+					if (username == "" || password == "") {
+						message("Username and password should be provided");
+						return;
+					}
+					console.log(username, password);
+
+					if (issignup == false) {
+						// perform login
+						login(username, password);
+					} else {
+						// perform sign up
+						signup(username, password);
+					}
+				});
+
+			function message(msg) {
+				const msgelem = document.getElementById("msg");
+				msgelem.innerHTML = msg;
+				msgelem.classList.remove("hide");
+				setTimeout(() => {
+					msgelem.classList.add("hide");
+				}, 2000);
+			}
+
+			async function login(username, password) {
+				try {
+					const { data } = await axios.post("/api/login", {
+						username: username,
+						password: password,
+					});
+					console.log(data);
+					saveToken(data.token);
+					window.location = "/dashboard.html";
+				} catch (e) {
+					message(e?.response?.data?.message);
+				}
+			}
+
+			function saveToken(token) {
+				if (token == null) {
+					throw new Error("Cannot save null token");
+				}
+				window.localStorage.setItem("pm-token", token);
+			}
+		</script>
+	</body>
 </html>
