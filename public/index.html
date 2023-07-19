@@ -151,14 +151,14 @@
 					issignup = e.target.checked;
 					if (issignup) {
 						document.querySelector("h2").textContent = "Sign up";
-						document.querySelector("input[type='submit']").value =
+						document.querySelector("button[type='submit']").value =
 							"Sign up";
 						document.querySelector(
 							"input[type='password']"
 						).placeholder = "New password";
 					} else {
 						document.querySelector("h2").textContent = "Log in";
-						document.querySelector("input[type='submit']").value =
+						document.querySelector("button[type='submit']").value =
 							"Log in";
 						document.querySelector(
 							"input[type='password']"
@@ -211,6 +211,18 @@
 					});
 					saveToken(data.token);
 					window.location = "/dashboard.html";
+				} catch (e) {
+					message(e?.response?.data?.message);
+				}
+			}
+
+			async function signup(username, password) {
+				try {
+					const { data } = await axios.post("/api/signup", {
+						username: username,
+						password: password,
+					});
+					message("Signed up. Now log in");
 				} catch (e) {
 					message(e?.response?.data?.message);
 				}

@@ -4,6 +4,7 @@ const generatePassword = require("../utils/password");
 
 const signUp = async (req, res, next) => {
 	const { username, password } = req.body;
+	console.log(username, password);
 
 	const existingUser = await User.findOne({ username });
 	if (existingUser != null) {
